@@ -4,6 +4,8 @@
 
 #define CHANNEL 1
 
+#define slaves 1
+
 void InitESPNow() {
   WiFi.disconnect();
   if (esp_now_init() == ESP_OK)
