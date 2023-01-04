@@ -4,8 +4,6 @@
 
 #define CHANNEL 1
 
-#define slaves 1
-
 void InitESPNow() {
   WiFi.disconnect();
   if (esp_now_init() == ESP_OK)
@@ -28,13 +26,13 @@ esp_now_peer_info_t genSlave(const String mac_addr){
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  char macStr[5];
+  char macStr[18];
   snprintf(macStr, sizeof(macStr), "%02x:%02x:%02x:%02x:%02x:%02x", mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
   Serial.print("Last Packet Sent to: "); Serial.println(macStr);
   Serial.print("Last Packet Send Status: "); Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
-String addPeer(esp_now_peer_info_t slave) {
+void addPeer(esp_now_peer_info_t slave) {
   String Status;
   bool exists  = esp_now_is_peer_exist(slave.peer_addr);
   if (exists) 
@@ -58,10 +56,10 @@ String addPeer(esp_now_peer_info_t slave) {
         Status = "Not sure what happened";
     }
   }
-  return Status;
+  Serial.println(Status);
 }
 
-String sendData(uint8_t data, esp_now_peer_info_t slave) {
+void sendData(uint8_t data, esp_now_peer_info_t slave) {
   String Status;
   const uint8_t *peer_addr = slave.peer_addr;
   esp_err_t result = esp_now_send(peer_addr, &data, sizeof(data));
@@ -81,7 +79,7 @@ String sendData(uint8_t data, esp_now_peer_info_t slave) {
     default:
       Status = "Not sure what happened";
   }
-  return Status;
+  Serial.println(Status);
 }
 
 void setup(){
@@ -89,14 +87,14 @@ void setup(){
   WiFi.mode(WIFI_STA);
   esp_wifi_set_channel(CHANNEL, WIFI_SECOND_CHAN_NONE);
   InitESPNow();
-  Serial.print("STA MAC: "); Serial.println(WiFi.macAddress());
-  Serial.print("STA CHANNEL "); Serial.println(WiFi.channel());
+  //Serial.print("STA MAC: "); Serial.println(WiFi.macAddress());
+  //Serial.print("STA CHANNEL "); Serial.println(WiFi.channel());
   esp_now_register_send_cb(OnDataSent);
 }
 
 void loop() {
   esp_now_peer_info_t slave1 = genSlave("E0:5A:1B:75:A7:B5");
-  Serial.println(addPeer(slave1));
+  addPeer(slave1);
   sendData(0x20, slave1);
   delay(1000);
 }

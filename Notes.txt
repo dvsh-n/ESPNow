@@ -1,0 +1,4 @@
+Device MacAddr		 CurrentName
+1	 E0:5A:1B:77:94:38 Master
+2	 E0:5A:1B:75:A7:B5 Slave1
+3	                   Slave2
